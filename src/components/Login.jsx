@@ -50,12 +50,7 @@ export default function Login(props) {
                 }}
                 size="lg"
               />
-
-              <p className="small mb-3 pb-lg-2">
-                <a class="text-white-50" href="#!">
-                  Forgot password?
-                </a>
-              </p>
+              
               <button
                 outline
                 className="mx-2 px-5"

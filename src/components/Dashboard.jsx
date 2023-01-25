@@ -3,7 +3,7 @@ import MyCard from "./MyCard";
 import NavBar from "./NavBar";
 
 export default function Dashboard(props) {
-  document.body.style.background = "#fff";
+  document.body.style.background = "#212529";
   return (
     <>
       <NavBar />
@@ -34,7 +34,7 @@ export default function Dashboard(props) {
             <b>Total Files: </b> {3} File(s)
           </MyCard>
           <Col xs={12} md={6} className="mb-3">
-            <Card>
+            <Card style={{background: "#212529", color: "#fff"}}>
               <Card.Header>
                 <Row>
                   <Col xs={12}>
@@ -43,8 +43,8 @@ export default function Dashboard(props) {
                 </Row>
               </Card.Header>
               <Card.Body>
-                <Button className="me-3" onClick={props.passwordShow}>Update Password</Button>
-                <Button className="me-3" onClick={props.apiShow}>Add New API</Button>
+                <Button className="me-3" variant="secondary" onClick={props.passwordShow}>Update Password</Button>
+                <Button className="me-3" variant="secondary" onClick={props.apiShow}>Add New API</Button>
               </Card.Body>
             </Card>
           </Col>

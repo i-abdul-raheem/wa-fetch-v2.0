@@ -37,7 +37,7 @@ function App() {
     }
   };
   const [state, dispatch] = useReducer(reducer, myStates);
-  const [token, setToken] = useState("1");
+  const [token, setToken] = useState("");
   if (token !== "")
     return (
       <>
