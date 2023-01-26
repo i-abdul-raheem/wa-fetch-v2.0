@@ -40,7 +40,10 @@ function App() {
   const [state, dispatch] = useReducer(reducer, myStates);
   const [token, setToken] = useState("");
   const [username, setUsername] = useState("");
-  const [inProgress, setInProgress] = useState(0);
+  const [inProgress, setInProgress] = useState(-1);
+  const [currentProgress, setCurrentProgress] = useState([100, 100, 100]);
+  const [currentProgressTitle, setCurrentProgressTitle] = useState(["Free Slot", "Free Slot", "Free Slot"]);
+  const [currentProgressStatus, setCurrentProgressStatus] = useState(["Not Initialized", "Not Initialized", "Not Initialized"]);
 
   // Set Files
   const [files, setFiles] = useState([]);
@@ -107,6 +110,9 @@ function App() {
           setToken={setToken}
           files={files}
           inProgress={inProgress}
+          currentProgress={currentProgress}
+          currentProgressTitle={currentProgressTitle}
+          currentProgressStatus={currentProgressStatus}
         />
         <StartScan
           showScan={() => dispatch({ id: "scan", type: "on" })}
@@ -119,6 +125,11 @@ function App() {
           setToastMsg={setToastMsg}
           files={files}
           setInProgress={setInProgress}
+          inProgress={inProgress}
+          currentProgress={currentProgress}
+          setCurrentProgress={setCurrentProgress}
+          currentProgressTitle={currentProgressTitle}
+          setCurrentProgressTitle={setCurrentProgressTitle}
         />
         <UploadFile
           showUploadFile={() => dispatch({ id: "upload", type: "on" })}

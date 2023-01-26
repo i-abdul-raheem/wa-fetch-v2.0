@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Form, Row, Col, Table } from "react-bootstrap";
 import ModalTemplate from "./ModalTemplate";
+import scanner from "./js/scanner";
 
 export default function StartScan(props) {
   const [form, setForm] = useState({
     code: "",
     file: "",
+    apis: [],
   });
   const deleteApi = async (id) => {
     const options = {
@@ -29,12 +31,21 @@ export default function StartScan(props) {
     props.setToast(true);
   };
 
+  let myProps = props;
+  myProps = { ...myProps, form };
+
   return (
     <>
       <ModalTemplate
         header="Start Scan"
         show={props.showScanState}
         onHide={props.hideScan}
+        handleSubmit={() => {
+          if (props.inProgress < 2 && form.code != "" && form.file != "") {
+            scanner({ ...myProps, index: props.inProgress });
+            props.setInProgress(props.inProgress + 1);
+          }
+        }}
         actionTitle="Start"
       >
         <Form>
@@ -47,6 +58,7 @@ export default function StartScan(props) {
                   onChange={(e) => setForm({ ...form, code: e.target.value })}
                   type="number"
                   placeholder="+1"
+                  required
                 />
               </Form.Group>
             </Col>
@@ -60,7 +72,7 @@ export default function StartScan(props) {
                 >
                   <option>Select File...</option>
                   {props.files.map((i, index) => (
-                    <option key={index} value={i.id}>
+                    <option key={index} value={i.title}>
                       {i.title}
                     </option>
                   ))}
@@ -74,22 +86,34 @@ export default function StartScan(props) {
                 <Form.Label>Select APIs</Form.Label>
                 <Table responsive striped hover>
                   <tbody>
-                    {props.apis.map((i, index) => (
-                      <tr key={index}>
-                        <td>
-                          <Form.Check type={"checkbox"} id={`api-${index}`} />
-                        </td>
-                        <td style={{ color: "#fff" }}>
-                          <label htmlFor={`api-${index}`}>{i.url}</label>
-                        </td>
-                        <td>
-                          <i
-                            onClick={() => deleteApi(i.id)}
-                            className="text-danger fa fa-trash"
-                          ></i>
-                        </td>
-                      </tr>
-                    ))}
+                    {props.apis.map((i, index) => {
+                      if (!form.apis.includes(index))
+                        return (
+                          <tr key={index}>
+                            <td>
+                              <Form.Check
+                                onChange={() =>
+                                  setForm({
+                                    ...form,
+                                    apis: [...form.apis, index],
+                                  })
+                                }
+                                type={"checkbox"}
+                                id={`api-${index}`}
+                              />
+                            </td>
+                            <td style={{ color: "#fff" }}>
+                              <label htmlFor={`api-${index}`}>{i.url}</label>
+                            </td>
+                            <td>
+                              <i
+                                onClick={() => deleteApi(i.id)}
+                                className="text-danger fa fa-trash"
+                              ></i>
+                            </td>
+                          </tr>
+                        );
+                    })}
                   </tbody>
                 </Table>
               </Form.Group>

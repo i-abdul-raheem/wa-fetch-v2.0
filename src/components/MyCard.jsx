@@ -4,7 +4,7 @@ import Progressbar from "./Progressbar";
 export default function MyCard(props) {
   return (
     <>
-      <Col xs={12} md={6} className="mb-3">
+      <Col xs={12} className="mb-3">
         <Card style={{background: "#212529", color: "#fff"}}>
           <Card.Header>
             <Row>
