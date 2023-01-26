@@ -1,7 +1,35 @@
+import { useState } from "react";
 import { Container, Card, Row, Col } from "react-bootstrap";
 
 export default function Login(props) {
   document.body.style.background = "#212529";
+
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleLogin = async () => {
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": true,
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+      },
+      body: JSON.stringify(form),
+    };
+    const res = await fetch(
+      `http://localhost:${process.env.REACT_APP_API}/login`,
+      options
+    ).then((res) => res.json());
+    if (res.data) {
+      props.setToken(res.data.token);
+      props.setUsername(res.data.username);
+    }
+  };
+
   return (
     <Container style={{ background: "#212529" }} fluid>
       <Row className="d-flex justify-content-center align-items-center h-100">
@@ -17,12 +45,9 @@ export default function Login(props) {
               </p>
 
               <input
-                wrapperClass="mb-4 mx-5 w-100"
-                labelClass="text-white"
-                label="Username"
-                id="formControlLg"
                 type="text"
-                size="lg"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
                 placeholder="Enter Username"
                 className="mb-3"
                 style={{
@@ -34,12 +59,10 @@ export default function Login(props) {
                 }}
               />
               <input
-                wrapperClass="mb-4 mx-5 w-100"
-                labelClass="text-white"
-                label="Password"
                 placeholder="Enter Password"
-                id="formControlLg"
                 className="mb-3"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
                 type="password"
                 style={{
                   backgroundColor: "#212529",
@@ -48,11 +71,9 @@ export default function Login(props) {
                   padding: "10px 14px",
                   borderRadius: "10px",
                 }}
-                size="lg"
               />
-              
+
               <button
-                outline
                 className="mx-2 px-5"
                 style={{
                   backgroundColor: "#212529",
@@ -63,6 +84,7 @@ export default function Login(props) {
                 }}
                 color="white"
                 size="lg"
+                onClick={() => handleLogin()}
               >
                 Login
               </button>

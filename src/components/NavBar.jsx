@@ -10,7 +10,14 @@ export default function NavBar(props) {
         <Navbar.Toggle />
         <Navbar.Collapse className="justify-content-end">
           <Navbar.Text>
-            <span><i className="fa fa-sign-out"></i></span>
+            <span className="me-3"><i className="fa fa-user me-1"></i> {props.username}</span>
+          </Navbar.Text>
+          <Navbar.Text className="me-3">|</Navbar.Text>
+          <Navbar.Text>
+            <span onClick={() => {
+              props.setUsername("");
+              props.setToken("");
+            }}><i className="fa fa-sign-out"></i></span>
           </Navbar.Text>
         </Navbar.Collapse>
       </Navbar>

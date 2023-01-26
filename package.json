@@ -1,6 +1,7 @@
 {
   "name": "wa-fetch-v2",
   "version": "0.2.0",
+  "proxy": "http://localhost:5000",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
@@ -14,7 +15,9 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.0",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.4",
+    "nodemon": "^2.0.20",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.0",
     "react-dom": "^18.2.0",

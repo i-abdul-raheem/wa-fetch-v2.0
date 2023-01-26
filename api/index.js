@@ -3,7 +3,7 @@ const app = express();
 var fileupload = require("express-fileupload");
 const fs = require("fs"); // Import File system modules
 const axios = require("axios"); // Import Axios
-
+const routes = require("./routes/index");
 const cors = require("cors");
 
 // Set PORT
@@ -18,6 +18,7 @@ app.use(fileupload());
 app.use(express.static("../files"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/", routes);
 
 app.get("/", async (req, res) => {
   res.send("Hello");
