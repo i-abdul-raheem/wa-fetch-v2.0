@@ -27,14 +27,11 @@ export default function Dashboard(props) {
                 </Card.Body>
                 <Card.Footer>
                   <Card.Title>{props.footer}</Card.Title>
-                  {props.currentProgress.map((i, index) => (
-                    <Progressbar
-                      key={index}
-                      file_no={props.currentProgressTitle[index]}
-                      progress={i}
-                      title={props.currentProgressStatus[index]}
-                    />
-                  ))}
+                  <Progressbar
+                    file_no={props.currentProgressTitle}
+                    progress={props.currentProgress}
+                    title={props.currentProgressStatus}
+                  />
                 </Card.Footer>
               </MyCard>
               <MyCard

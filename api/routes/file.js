@@ -3,8 +3,8 @@ const route = require("express").Router();
 const files = [
   {
     id: "1",
-    title: "100 Numbers",
-    path: "100numbers.csv",
+    title: "test.csv",
+    path: "test.csv",
   },
 ];
 
@@ -49,11 +49,19 @@ route.post("/", (req, res) => {
   }
 
   // Add file to record
-  files.push({
-    id: (parseInt(files[files.length - 1].id) + 1).toString(),
-    title: data.title + ".csv",
-    path: `${data.title}.csv`,
-  });
+  if (files.length < 1) {
+    files.push({
+      id: "1",
+      title: data.title + ".csv",
+      path: `${data.title}.csv`,
+    });
+  } else {
+    files.push({
+      id: (parseInt(files[files.length - 1].id) + 1).toString(),
+      title: data.title + ".csv",
+      path: `${data.title}.csv`,
+    });
+  }
 
   // Move file to server storage
   file.mv(`./${data.title}.csv`, (err) => {

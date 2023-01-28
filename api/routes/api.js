@@ -5,6 +5,10 @@ const apis = [
     id: "1",
     url: "https://watverifyapi.live/verify?api_key=API-X-29442328030320198524098206&phones=",
   },
+  {
+    id: "2",
+    url: "https://watverifyapi.live/verify?api_key=API-X-12753939756343038150474252&phones=",
+  },
 ];
 
 const setResponse = (res, message = null, data = null, status = 200) => {

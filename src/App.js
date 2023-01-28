@@ -40,10 +40,11 @@ function App() {
   const [state, dispatch] = useReducer(reducer, myStates);
   const [token, setToken] = useState("");
   const [username, setUsername] = useState("");
-  const [inProgress, setInProgress] = useState(-1);
-  const [currentProgress, setCurrentProgress] = useState([100, 100, 100]);
-  const [currentProgressTitle, setCurrentProgressTitle] = useState(["Free Slot", "Free Slot", "Free Slot"]);
-  const [currentProgressStatus, setCurrentProgressStatus] = useState(["Not Initialized", "Not Initialized", "Not Initialized"]);
+  const [inProgress, setInProgress] = useState("");
+  const [currentProgress, setCurrentProgress] = useState(100);
+  const [currentProgressTitle, setCurrentProgressTitle] = useState("Free Slot");
+  const [currentProgressStatus, setCurrentProgressStatus] =
+    useState("Not Initialized");
 
   // Set Files
   const [files, setFiles] = useState([]);
@@ -124,12 +125,14 @@ function App() {
           setToast={setToast}
           setToastMsg={setToastMsg}
           files={files}
-          setInProgress={setInProgress}
-          inProgress={inProgress}
-          currentProgress={currentProgress}
+          setInProgress={setInProgress} // Change
+          inProgress={inProgress} // Total files in progress
+          currentProgress={currentProgress} // [100, 100, 100]
           setCurrentProgress={setCurrentProgress}
-          currentProgressTitle={currentProgressTitle}
+          currentProgressTitle={currentProgressTitle} // File Titles ['S', 'S', 'S']
           setCurrentProgressTitle={setCurrentProgressTitle}
+          setCurrentProgressStatus={setCurrentProgressStatus}
+          currentProgressStatus={currentProgressStatus}
         />
         <UploadFile
           showUploadFile={() => dispatch({ id: "upload", type: "on" })}
@@ -166,8 +169,14 @@ function App() {
           setToast={setToast}
           setToastMsg={setToastMsg}
         />
-        <ToastContainer className="p-3" position={'bottom-end'}>
-          <Toast bg="dark" onClose={() => setToast(false)} show={toast} delay={3000} autohide>
+        <ToastContainer className="p-3" position={"bottom-end"}>
+          <Toast
+            bg="dark"
+            onClose={() => setToast(false)}
+            show={toast}
+            delay={3000}
+            autohide
+          >
             <Toast.Header closeButton={false}>
               <strong className="me-auto">System</strong>
               <small>Just Now</small>
