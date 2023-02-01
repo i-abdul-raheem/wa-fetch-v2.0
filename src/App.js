@@ -147,6 +147,7 @@ function App() {
           showExportFile={() => dispatch({ id: "export", type: "on" })}
           hideExportFile={() => dispatch({ id: "export", type: "off" })}
           showExportFileState={state[2].status}
+          files={files}
           token={token}
         />
         <AddAPI

@@ -1,5 +1,4 @@
 const route = require("express").Router();
-const cors = require("cors");
 const login = require("./login");
 const api = require("./api");
 const file = require("./file");

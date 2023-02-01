@@ -1,4 +1,5 @@
 const route = require("express").Router();
+const { File } = require("../model/model");
 
 const files = [
   {
@@ -16,23 +17,20 @@ const setResponse = (res, message = null, data = null, status = 200) => {
   });
 };
 
-route.get("/", (req, res) => {
+route.get("/", async (req, res) => {
+  const files = await File.find({});
   return setResponse(res, null, files, 200);
 });
 
-route.get("/:id", (req, res) => {
+route.get("/:id", async (req, res) => {
   const id = req.params.id;
-  for (let i = 0; i < files.length; i++) {
-    if (files[i].id === id) {
-      return setResponse(res, null, files[i], 200);
-    }
-  }
-  return setResponse(res, "File not found", null, 404);
+  const files = await File.find({ _id: id });
+  if (!files) return setResponse(res, "File not found", null, 404);
+  return setResponse(res, null, files, 404);
 });
 
-route.post("/", (req, res) => {
+route.post("/", async (req, res) => {
   const data = req.body;
-  console.log(data);
   if (!data.title) {
     return setResponse(res, "File title is required", null, 405);
   }
@@ -42,52 +40,39 @@ route.post("/", (req, res) => {
   const file = req.files.file;
 
   // Check if file name already exist
-  for (let i = 0; i < files.length; i++) {
-    if (files[i].title === data.title) {
-      return setResponse(res, "File title already exist", null, 405);
-    }
-  }
+  const fileExist = await File.findOne({ title: data.title });
+  if (fileExist) return setResponse(res, "File title already exist", null, 405);
 
   // Add file to record
-  if (files.length < 1) {
-    files.push({
-      id: "1",
-      title: data.title + ".csv",
-      path: `${data.title}.csv`,
-    });
-  } else {
-    files.push({
-      id: (parseInt(files[files.length - 1].id) + 1).toString(),
-      title: data.title + ".csv",
-      path: `${data.title}.csv`,
-    });
-  }
-
-  // Move file to server storage
-  file.mv(`./${data.title}.csv`, (err) => {
-    if (err) {
-      console.log(err);
-      files.pop();
-    }
+  const newFile = new File({
+    title: data.title + ".csv",
+    path: `${data.title}.csv`,
   });
 
-  return setResponse(res, "File added", null, 201);
+  const result = await newFile.save();
+
+  // Move file to server storage
+  if (result) {
+    file.mv(`./${data.title}.csv`, (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+    return setResponse(res, "File added", null, 201);
+  }
+  return setResponse(res, "Error uploading file", null, 500);
 });
 
-route.delete("/:id", (req, res) => {
+route.delete("/:id", async (req, res) => {
   const id = req.params.id;
-  let fileFound = false;
-  let indexOfFile = -1;
-  for (let i = 0; i < files.length; i++) {
-    if (files[i].id === id) {
-      fileFound = true;
-      indexOfFile = i;
-      break;
-    }
+  const fileFound = await File.findOne({ _id: id });
+  if (fileFound) {
+    const result = await File.deleteOne({ _id: id });
+    // console.log(result);
+    if (result) return setResponse(res, "FILE deleted", null, 200);
+    return setResponse(res, "Error while deleting file", null, 405);
   }
-  if (!fileFound) return setResponse(res, "File not found", null, 404);
-  files.splice(indexOfFILE, 1);
-  return setResponse(res, "File deleted", null, 200);
+  return setResponse(res, "FILE not found", null, 404);
 });
 
 module.exports = route;

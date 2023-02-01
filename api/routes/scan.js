@@ -1,6 +1,8 @@
 const route = require("express").Router();
 const fs = require("fs"); // Import File system modules
 const axios = require("axios"); // Import Axios
+const { Phone } = require("../model/model");
+
 const PhoneNumber = [
   { fileName: "test.csv", isActive: true, phoneNumber: "17183141861" },
 ];
@@ -34,7 +36,8 @@ route.post("/scan", async (req, res) => {
       phoneNumber: myData.phone,
     };
     console.log(data);
-    PhoneNumber.push(data);
+    const newPhone = new Phone(data);
+    await newPhone.save();
 
     res.status(200).send({ message: "Saved", code: 200 });
   } catch {
@@ -55,7 +58,8 @@ route.post("/open/:file", async (req, res) => {
     ).toString();
   });
 
-  const filterData = PhoneNumber;
+  const response = await Phone.find({});
+  const filterData = response;
   filterData.filter((i) => i.fileName != req.body.file);
 
   const myContinue = [];
@@ -78,17 +82,35 @@ route.post("/open/:file", async (req, res) => {
 });
 
 route.get("/all", async (req, res) => {
-  res.send(PhoneNumber);
+  const response = await Phone.find({});
+  res.send(response);
 });
 
 route.post("/all", async (req, res) => {
   if (!req.body.fileName) {
     return res.send("Invalid Format");
   }
-  //   const response = await PhoneNumber.find({ fileName: req.body.fileName });
-  const data = PhoneNumber;
+
+  const response = await Phone.find({ fileName: req.body.fileName });
+  const data = response;
   data.filter((i) => i.fileName != req.body.fileName);
   res.send(data);
+});
+
+route.get("/export/:fileName", async (req, res) => {
+  const response = await Phone.find({ fileName: req.body.fileName });
+  const data = response;
+  data.filter((i) => i.fileName != req.params.fileName);
+  let str = "";
+  data.map((i) => {
+    str += `${i.phoneNumber},${i.isActive}\n`;
+  });
+  var createStream = fs.createWriteStream(req.params.fileName);
+  createStream.end();
+  var writeStream = fs.createWriteStream(req.params.fileName);
+  writeStream.write(str);
+  writeStream.end();
+  res.download(req.params.fileName);
 });
 
 module.exports = route;

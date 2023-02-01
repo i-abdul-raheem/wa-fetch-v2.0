@@ -1,15 +1,5 @@
 const route = require("express").Router();
-
-const apis = [
-  {
-    id: "1",
-    url: "https://watverifyapi.live/verify?api_key=API-X-29442328030320198524098206&phones=",
-  },
-  {
-    id: "2",
-    url: "https://watverifyapi.live/verify?api_key=API-X-12753939756343038150474252&phones=",
-  },
-];
+const { Api } = require("../model/model");
 
 const setResponse = (res, message = null, data = null, status = 200) => {
   return res.status(status).json({
@@ -19,61 +9,42 @@ const setResponse = (res, message = null, data = null, status = 200) => {
   });
 };
 
-route.get("/", (req, res) => {
+route.get("/", async (req, res) => {
+  const apis = await Api.find({});
   return setResponse(res, null, apis, 200);
 });
 
-route.get("/:id", (req, res) => {
+route.get("/:id", async (req, res) => {
   const id = req.params.id;
-  for (let i = 0; i < apis.length; i++) {
-    if (apis[i].id === id) {
-      return setResponse(res, null, apis[i], 200);
-    }
-  }
+  const apis = await Api.findOne({ _id: id });
+
+  if (apis) return setResponse(res, null, apis, 200);
   return setResponse(res, "API not found", null, 404);
 });
 
-route.post("/", (req, res) => {
+route.post("/", async (req, res) => {
   const data = req.body;
   if (!data.url) {
     return setResponse(res, "API URL is required", null, 405);
   }
-  let apiFound = false;
-  for (let i = 0; i < apis.length; i++) {
-    if (apis[i].url === data.url) {
-      apiFound = true;
-      break;
-    }
-  }
-  if (apiFound) return setResponse(res, "API already exist", null, 401);
-  try {
-    apis.push({
-      id: (parseInt(apis[apis.length - 1].id) + 1).toString(),
-      url: data.url,
-    });
-  } catch (ex) {
-    apis.push({
-      id: 1,
-      url: data.url,
-    });
-  }
-  return setResponse(res, "New API added", data, 201);
+  const apiExist = await Api.findOne({ url: data.url });
+  if (apiExist) return setResponse(res, "API URL already exist", null, 405);
+  const newApi = new Api(data);
+  const result = await newApi.save();
+  if (result) return setResponse(res, "New API added", result, 201);
+  return setResponse(res, "Error", result, 405);
 });
 
-route.delete("/:id", (req, res) => {
+route.delete("/:id", async (req, res) => {
   const id = req.params.id;
-  let apiFound = false;
-  let indexOfAPI = -1;
-  for (let i = 0; i < apis.length; i++) {
-    if (apis[i].id === id) {
-      apiFound = true;
-      indexOfAPI = i;
-      break;
-    }
+  const apiFound = await Api.findOne({ _id: id });
+  if (apiFound) {
+    const result = await Api.deleteOne({ _id: id });
+    // console.log(result);
+    if (result) return setResponse(res, "API deleted", null, 200);
+    return setResponse(res, "Error while deleting api", null, 405);
   }
-  if (!apiFound) return setResponse(res, "API not found", null, 404);
-  apis.splice(indexOfAPI, 1);
-  return setResponse(res, "API deleted", null, 200);
+  return setResponse(res, "API not found", null, 404);
 });
 
 module.exports = route;

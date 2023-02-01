@@ -1,13 +1,7 @@
 const route = require("express").Router();
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/authorization");
-
-const users = [
-  {
-    username: "admin",
-    password: "12345678",
-  },
-];
+const { User } = require("../model/model");
 
 const setResponse = (res, message = null, data = null, status = 200) => {
   return res.status(status).json({
@@ -17,7 +11,7 @@ const setResponse = (res, message = null, data = null, status = 200) => {
   });
 };
 
-route.post("/", (req, res) => {
+route.post("/", async (req, res) => {
   const data = req.body;
   if (!data.username) {
     return setResponse(res, "Username is required", null, 405);
@@ -25,32 +19,24 @@ route.post("/", (req, res) => {
   if (!data.password) {
     return setResponse(res, "Password is required", null, 405);
   }
-  let userFound = false;
-  let indexOfUser = -1;
-  for (let i = 0; i < users.length; i++) {
-    if (
-      users[i].username === data.username &&
-      users[i].password === data.password
-    ) {
-      userFound = true;
-      indexOfUser = i;
-      break;
-    }
-  }
+  const userFound = await User.findOne({
+    username: data.username,
+    password: data.password,
+  });
   if (!userFound)
     return setResponse(res, "Username/Password not correct", null, 404);
   const token = jwt.sign(
-    { username: users[indexOfUser].username },
+    { username: userFound.username },
     process.env.REACT_APP_SECRET,
     { expiresIn: "86400s" }
   );
   return setResponse(res, "Login Successful", {
     token,
-    username: users[indexOfUser].username,
+    username: userFound.username,
   });
 });
 
-route.put("/", auth, (req, res) => {
+route.put("/", auth, async (req, res) => {
   const data = req.body;
   if (!data.password0)
     return setResponse(res, "Cuurrent password is required", null, 405);
@@ -81,19 +67,13 @@ route.put("/", auth, (req, res) => {
     );
   if (!data.username)
     return setResponse(res, "Username is required", null, 405);
-  let userFound = false;
-  let indexOfUser = -1;
-  for (let i = 0; i < users.length; i++) {
-    if (users[i].username === data.username) {
-      userFound = true;
-      indexOfUser = i;
-      break;
-    }
-  }
-  if (!userFound) return setResponse(res, "User not found!", null, 404);
-  if (users[indexOfUser].password != data.password0)
-    return setResponse(res, "Current password is invalid", null, 405);
-  users[indexOfUser].password = data.password1;
+  const allUsers = await User.findOne({ username: "admin" });
+  if (allUsers.password !== data.password0)
+    return setResponse(res, "Current password in wrong", null);
+  await User.updateOne(
+    { username: data.username },
+    { $set: { password: data.password1 } }
+  );
   return setResponse(res, "Password Updated", null);
 });
 

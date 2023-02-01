@@ -225,7 +225,7 @@ export default function StartScan(props) {
                           </td>
                           <td>
                             <i
-                              onClick={() => deleteApi(i.id)}
+                              onClick={() => deleteApi(i._id)}
                               className="text-danger fa fa-trash"
                             ></i>
                           </td>
