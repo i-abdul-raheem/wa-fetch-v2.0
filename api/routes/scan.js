@@ -3,10 +3,6 @@ const fs = require("fs"); // Import File system modules
 const axios = require("axios"); // Import Axios
 const { Phone } = require("../model/model");
 
-const PhoneNumber = [
-  { fileName: "test.csv", isActive: true, phoneNumber: "17183141861" },
-];
-
 route.post("/scan", async (req, res) => {
   if (!req.body.phone) {
     return res
@@ -62,15 +58,11 @@ route.post("/open/:file", async (req, res) => {
   const filterData = response;
   filterData.filter((i) => i.fileName != req.body.file);
 
-  const myContinue = [];
-  for (let i = 0; i < filterData.length; i++) {
-    myContinue.push(filterData[i].phoneNumber);
-  }
   const searchData = [];
   for (let i = 0; i < newData.length; i++) {
     let myFoundNumber = false;
-    for (let j = 0; j < myContinue.length; j++) {
-      if (newData[i] == myContinue[j]) {
+    for (let j = 0; j < filterData.length; j++) {
+      if (newData[i] == filterData[j].phoneNumber) {
         myFoundNumber = true;
         break;
       }
@@ -98,9 +90,8 @@ route.post("/all", async (req, res) => {
 });
 
 route.get("/export/:fileName", async (req, res) => {
-  const response = await Phone.find({ fileName: req.body.fileName });
+  const response = await Phone.find({ fileName: req.params.fileName });
   const data = response;
-  data.filter((i) => i.fileName != req.params.fileName);
   let str = "";
   data.map((i) => {
     str += `${i.phoneNumber},${i.isActive}\n`;

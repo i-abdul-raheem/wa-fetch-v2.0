@@ -83,6 +83,7 @@ export default function StartScan(props) {
     // OK
 
     const file = form.file;
+    props.setCurrentProgressTitle(file);
     const code = form.code;
     const openFileOptions = {
       method: "POST",
@@ -92,15 +93,16 @@ export default function StartScan(props) {
         file: file,
       }),
     };
+    props.setCurrentProgressStatus(`Preparing Data...`);
     const response = await fetch(
       `http://localhost:${process.env.REACT_APP_API}/open/${file}`,
       openFileOptions
     ).then((res) => res.json());
+    props.setCurrentProgressStatus(`Data loaded`);
     const searchData = response.message;
     const totalData = searchData.length;
-    props.setCurrentProgressStatus(
-      `${totalData} numbers already scanned`
-    );
+    props.setToastMsg(`${totalData} numbers to scan.`);
+    props.setToast(true);
     const getResponse = async (api, num) => {
       const options = {
         method: "POST",
@@ -119,7 +121,10 @@ export default function StartScan(props) {
       const res = await fetch(
         `http://localhost:${process.env.REACT_APP_API}/scan`,
         options
-      ).then((res) => res.json());
+      ).then(() => {
+        props.setCurrentProgressStatus(`${curr}/${totalData}`);
+        curr++;
+      });
     };
     // OK CODE
 
@@ -148,12 +153,11 @@ export default function StartScan(props) {
     }
     const transposeData = transpose(myRow);
 
+    let curr = 0;
     for (let j = 0; j < transposeData.length; j++) {
       transposeData[j].forEach(async (i, index) => {
         await sleep(4000 * (index + 1));
-        console.log(form.apis[j], i);
         getResponse(form.apis[j], i);
-        props.setCurrentProgressStatus(`/${totalData}`);
       });
     }
   };
@@ -165,7 +169,6 @@ export default function StartScan(props) {
         show={props.showScanState}
         onHide={props.hideScan}
         handleSubmit={() => {
-          console.log(form);
           startScanner();
         }}
         actionTitle="Start"
