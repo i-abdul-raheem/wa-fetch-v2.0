@@ -11,9 +11,10 @@ export default function ExportFile(props) {
     setFiles(props.files);
   }, [props.files]);
   const handleSubmit = async () => {
-    window.location.replace(
+    const res = await fetch(
       `http://localhost:${process.env.REACT_APP_API}/export/${form.fileName}`
-    );
+    ).then((res) => res.text());
+    console.log("done");
   };
   return (
     <>

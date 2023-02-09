@@ -121,10 +121,11 @@ export default function StartScan(props) {
       const res = await fetch(
         `http://localhost:${process.env.REACT_APP_API}/scan`,
         options
-      ).then(() => {
+      ).then((res) => res.json());
+      if (res.message === "Saved") {
         props.setCurrentProgressStatus(`${curr}/${totalData}`);
         curr++;
-      });
+      }
     };
     // OK CODE
 

@@ -1,7 +1,49 @@
+// route.get("/all", async (req, res) => {
+//   const response = await Phone.find({});
+//   res.send(response);
+// });
+
+// route.post("/all", async (req, res) => {
+//   if (!req.body.fileName) {
+//     return res.send("Invalid Format");
+//   }
+//
+//   const response = await Phone.find({ fileName: req.body.fileName });
+//   const data = response;
+//   data.filter((i) => i.fileName != req.body.fileName);
+//   res.send(data);
+// });
+
+// module.exports = route;
+
 const route = require("express").Router();
 const fs = require("fs"); // Import File system modules
 const axios = require("axios"); // Import Axios
 const { Phone } = require("../model/model");
+
+route.post("/open/:file", async (req, res) => {
+  const filePath = `./${req.params.file}`;
+  const data = fs.readFileSync(filePath, { encoding: "utf-8" });
+  const newData = data.split("\r\n");
+  newData.map((i, index) => {
+    newData[index] = (req.body.code.toString() + i.toString()).toString();
+  });
+  const response = await Phone.find({ fileName: req.params.file });
+  const filterData = response;
+
+  const searchData = [];
+  for (let i = 0; i < newData.length; i++) {
+    let myFoundNumber = false;
+    for (let j = 0; j < filterData.length; j++) {
+      if (newData[i] == filterData[j].phoneNumber) {
+        myFoundNumber = true;
+        break;
+      }
+    }
+    if (!myFoundNumber) searchData.push(newData[i]);
+  }
+  res.status(200).send({ message: searchData, code: 200 });
+});
 
 route.post("/scan", async (req, res) => {
   if (!req.body.phone) {
@@ -31,7 +73,6 @@ route.post("/scan", async (req, res) => {
       isActive: myData.result,
       phoneNumber: myData.phone,
     };
-    console.log(data);
     const newPhone = new Phone(data);
     await newPhone.save();
 
@@ -44,64 +85,23 @@ route.post("/scan", async (req, res) => {
   }
 });
 
-route.post("/open/:file", async (req, res) => {
-  const filePath = `./${req.params.file}`;
-  const data = fs.readFileSync(filePath, { encoding: "utf-8" });
-  const newData = data.split("\n");
-  newData.map((i, index) => {
-    newData[index] = (
-      req.body.code.toString() + newData[index].toString()
-    ).toString();
-  });
-
-  const response = await Phone.find({});
-  const filterData = response;
-  filterData.filter((i) => i.fileName != req.body.file);
-
-  const searchData = [];
-  for (let i = 0; i < newData.length; i++) {
-    let myFoundNumber = false;
-    for (let j = 0; j < filterData.length; j++) {
-      if (newData[i] == filterData[j].phoneNumber) {
-        myFoundNumber = true;
-        break;
-      }
-    }
-    if (!myFoundNumber) searchData.push(newData[i]);
-  }
-
-  res.status(200).send({ message: searchData, code: 200 });
-});
-
-route.get("/all", async (req, res) => {
-  const response = await Phone.find({});
-  res.send(response);
-});
-
-route.post("/all", async (req, res) => {
-  if (!req.body.fileName) {
-    return res.send("Invalid Format");
-  }
-
-  const response = await Phone.find({ fileName: req.body.fileName });
-  const data = response;
-  data.filter((i) => i.fileName != req.body.fileName);
-  res.send(data);
-});
-
 route.get("/export/:fileName", async (req, res) => {
   const response = await Phone.find({ fileName: req.params.fileName });
+  const date = new Date();
   const data = response;
   let str = "";
   data.map((i) => {
     str += `${i.phoneNumber},${i.isActive}\n`;
   });
-  var createStream = fs.createWriteStream(req.params.fileName);
+  const fileDownload = `export-${date.getDate()}-${date.getFullYear()}-${date.getMonth()}-${date.getTime()}${
+    req.params.fileName
+  }`;
+  var createStream = fs.createWriteStream(fileDownload);
   createStream.end();
-  var writeStream = fs.createWriteStream(req.params.fileName);
-  writeStream.write(str);
-  writeStream.end();
-  res.download(req.params.fileName);
+  var writeStream = fs.createWriteStream(fileDownload);
+  await writeStream.write(str);
+  await writeStream.end();
+  res.send("Done");
 });
 
 module.exports = route;
