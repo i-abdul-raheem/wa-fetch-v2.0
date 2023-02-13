@@ -114,6 +114,9 @@ function App() {
           currentProgress={currentProgress}
           currentProgressTitle={currentProgressTitle}
           currentProgressStatus={currentProgressStatus}
+          setToast={setToast}
+          setToastMsg={setToastMsg}
+          updateFiles={updateFiles}
         />
         <StartScan
           showScan={() => dispatch({ id: "scan", type: "on" })}

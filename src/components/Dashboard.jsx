@@ -1,10 +1,33 @@
-import { Col, Row, Card, Button } from "react-bootstrap";
+import { Col, Row, Card, Button, Table, Modal } from "react-bootstrap";
 import Progressbar from "./Progressbar";
 import MyCard from "./MyCard";
 import NavBar from "./NavBar";
+import { useState } from "react";
 
 export default function Dashboard(props) {
   document.body.style.background = "#212529";
+  const confirmDelete = async () => {
+    const options = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": true,
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+        Authorization: `Bearer ${props.token}`,
+      },
+    };
+    const res = await fetch(
+      `http://localhost:${process.env.REACT_APP_API}/file/${deleteId}`,
+      options
+    ).then((res) => res.json());
+    props.setToastMsg(res.message);
+    props.setToast(true);
+    props.updateFiles();
+    setDeleteFile(false);
+  };
+  const [deleteFile, setDeleteFile] = useState(false);
+  const [deleteId, setDeleteId] = useState(false);
   return (
     <>
       <NavBar
@@ -56,6 +79,32 @@ export default function Dashboard(props) {
               >
                 <Card.Body>
                   <b>Total Files: </b> {props.files.length} File(s)
+                  <Table striped hover>
+                    <thead>
+                      <tr>
+                        <th style={{ color: "white" }}>File Name</th>
+                        <th style={{ color: "white" }}>Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {props.files.map((i, index) => (
+                        <tr key={index}>
+                          <td style={{ color: "white" }}>{i.title}</td>
+                          <td>
+                            <Button
+                              variant="danger"
+                              onClick={() => {
+                                setDeleteId(i._id);
+                                setDeleteFile(true);
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
                 </Card.Body>
               </MyCard>
               <Col xs={12} className="mb-3">
@@ -88,6 +137,18 @@ export default function Dashboard(props) {
             </Row>
           </Col>
         </Row>
+        <Modal onHide={() => setDeleteFile(false)} show={deleteFile}>
+          <Modal.Header closeButton>Delete File</Modal.Header>
+          <Modal.Body>Are you sure?</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setDeleteFile(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={() => confirmDelete()}>
+              Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </>
   );
