@@ -126,6 +126,7 @@ export default function StartScan(props) {
         props.setCurrentProgressStatus(`${curr}/${totalData}`);
         curr++;
       }
+      console.log(res);
     };
     // OK CODE
 
@@ -155,12 +156,16 @@ export default function StartScan(props) {
     const transposeData = transpose(myRow);
 
     let curr = 0;
-    for (let j = 0; j < transposeData.length; j++) {
-      transposeData[j].forEach(async (i, index) => {
-        await sleep(4000 * (index + 1));
-        getResponse(form.apis[j], i);
-      });
-    }
+    // for (let j = 0; j < transposeData.length; j++) {
+    transposeData[0].forEach(async (i, index) => {
+      await sleep(4000 * (index + 1));
+      getResponse(form.apis[0], i);
+    });
+    transposeData[1].forEach(async (i, index) => {
+      await sleep(4000 * (index + 1));
+      getResponse(form.apis[1], i);
+    });
+    // }
   };
 
   return (

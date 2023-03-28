@@ -67,15 +67,16 @@ route.post("/scan", async (req, res) => {
     const myPhone = req.body.phone;
     const api = req.body.api;
     try {
-      console.log(req.body)
-      const myData = await axios.get(api + myPhone).then((i) => i.data);
-      console.log(myData)
+      const myData = await axios.get(api + myPhone).then((i) => i.data[0]);
+      if (!myData.phone) {
+        return res.status(403).send({ message: myData, code: 403 });
+      }
       // Save number
 
       const data = {
         fileName: req.body.fileName,
         isActive: myData.result,
-        phoneNumber: myPhone,
+        phoneNumber: myData.phone,
       };
       const newPhone = new Phone(data);
       await newPhone.save();
